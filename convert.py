@@ -5,22 +5,20 @@ import click
 @click.command()
 @click.argument('input_path', type=click.Path(exists=True))
 def convert(input_path):
-    EXAMPLE = click.format_filename(input_path)
-    df = pd.read_csv(EXAMPLE, encoding = 'latin1')
-
-    pd.set_option("display.max_columns",101)
+    transactions_path = click.format_filename(input_path)
+    rabo = pd.read_csv(transactions_path, encoding = 'latin1')
 
     df_ynab = pd.DataFrame({
-        'Account': df['IBAN/BBAN'],
-        'Date': [x.strftime('%Y-%m-%d') for x in pd.to_datetime(df['Datum'])],
-        'Payee': [x if not pd.isnull(x) else '' for x in df['Naam tegenpartij']],
-        'Category': ['' for x in df['IBAN/BBAN']],
-        'Memo': df['Omschrijving-1'],
-        'Outflow': [x.replace('-', '').replace(',', '.') if '-' in x else '' for x in df['Bedrag']],
-        'Inflow': [x.replace('+', '').replace(',', '.') if '+' in x else '' for x in df['Bedrag']],
+        'Account': rabo['IBAN/BBAN'],
+        'Date': [x.strftime('%Y-%m-%d') for x in pd.to_datetime(rabo['Datum'])],
+        'Payee': [x if not pd.isnull(x) else '' for x in rabo['Naam tegenpartij']],
+        'Category': ['' for x in rabo['IBAN/BBAN']],
+        'Memo': rabo['Omschrijving-1'],
+        'Outflow': [x.replace('-', '').replace(',', '.') if '-' in x else '' for x in rabo['Bedrag']],
+        'Inflow': [x.replace('+', '').replace(',', '.') if '+' in x else '' for x in rabo['Bedrag']],
     })
 
-    filename = splitext(basename(EXAMPLE))[0]
+    filename = splitext(basename(transactions_path))[0]
 
     for key, groupdf in df_ynab.groupby('Account'):
         fn = 'output/{}-{}.csv'.format(filename, key)
