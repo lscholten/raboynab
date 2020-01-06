@@ -35,14 +35,18 @@ def get_converter(rabo_df):
     return convert_regular_account
 
 
+def filter_date(ynab_df, start_date):
+    return ynab_df[pd.to_datetime(ynab_df['Date']) >= start_date]
+
 @click.command()
 @click.argument('input_path', type=click.Path(exists=True))
-def convert(input_path):
+@click.option('--start_date', type=click.DateTime(formats=["%Y-%m-%d"]), default="1970-01-01")
+def convert(input_path, start_date):
     transactions_path = click.format_filename(input_path)
     rabo_df = pd.read_csv(transactions_path, encoding='latin1')
 
     converter = get_converter(rabo_df)
-    df_ynab = converter(rabo_df)
+    df_ynab = filter_date(converter(rabo_df), start_date)
 
     filename = splitext(basename(transactions_path))[0]
     for key, groupdf in df_ynab.groupby('Account'):
