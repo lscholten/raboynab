@@ -11,8 +11,8 @@ def convert_credit_account(df):
         'Payee': ['Creditcard'] * num_entries,
         'Category': [''] * num_entries,
         'Memo': df['Omschrijving'],
-        'Outflow': [-x if x < 0 else '' for x in df['Bedrag']],
-        'Inflow': [x if x >= 0 else '' for x in df['Bedrag']],
+        'Outflow': [x.replace('-', '').replace(',', '.') if '-' in x else '' for x in df['Bedrag']],
+        'Inflow': [x.replace('+', '').replace(',', '.') if '+' in x else '' for x in df['Bedrag']],
     })
 
 
